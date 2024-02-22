@@ -31,3 +31,16 @@ jobs:
         env:
           MJ_APIKEY_PUBLIC: ${{ secrets.MJ_APIKEY_PUBLIC }},
           MJ_APIKEY_PRIVATE: ${{ secrets.MJ_APIKEY_PRIVATE }}
+
+      - name: Apply all pending migrations to the test database
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}
+
+      - name: Run e2e tests
+        run: |
+          if [ ${{ github.event.pull_request.base.ref }} == "main" ]; then
+            yarn test:e2e
+          fi
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}
