@@ -33,7 +33,7 @@ jobs:
           MJ_APIKEY_PRIVATE: ${{ secrets.MJ_APIKEY_PRIVATE }}
 
       - name: Apply all pending migrations to the test database
-        run: npx prisma migrate deploy
+        run: npx prisma db push
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}
 
