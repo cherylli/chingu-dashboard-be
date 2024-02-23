@@ -36,6 +36,8 @@ jobs:
         run: npx prisma db push --accept-data-loss
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}
+          MJ_APIKEY_PUBLIC: ${{ secrets.MJ_APIKEY_PUBLIC }},
+          MJ_APIKEY_PRIVATE: ${{ secrets.MJ_APIKEY_PRIVATE }}
 
       - name: Run e2e tests
         run: |
