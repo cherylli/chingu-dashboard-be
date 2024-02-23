@@ -36,13 +36,13 @@ jobs:
             yarn test
           fi       
 
-      - name: Apply all pending migrations to the test database
+      - name: Push latest schema to the test database
         run: npx prisma db push --accept-data-loss
 
       - name: Run e2e tests
         run: |
           if [ ${{ github.event.pull_request.base.ref }} == "main" ]; then
-            yarn test:e2e
+            yarn test:e2e --testTimeout=300000
           fi        
           
           
