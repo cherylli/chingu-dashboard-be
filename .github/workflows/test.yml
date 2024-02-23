@@ -35,9 +35,7 @@ jobs:
       - name: Apply all pending migrations to the test database
         run: npx prisma db push --accept-data-loss
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}
-          MJ_APIKEY_PUBLIC: ${{ secrets.MJ_APIKEY_PUBLIC }},
-          MJ_APIKEY_PRIVATE: ${{ secrets.MJ_APIKEY_PRIVATE }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}         
 
       - name: Run e2e tests
         run: |
@@ -46,3 +44,5 @@ jobs:
           fi
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}
+          MJ_APIKEY_PUBLIC: ${{ secrets.MJ_APIKEY_PUBLIC }},
+          MJ_APIKEY_PRIVATE: ${{ secrets.MJ_APIKEY_PRIVATE }}
