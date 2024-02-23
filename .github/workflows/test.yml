@@ -45,4 +45,8 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_TEST }}
           MJ_APIKEY_PUBLIC: ${{ secrets.MJ_APIKEY_PUBLIC }},
-          MJ_APIKEY_PRIVATE: ${{ secrets.MJ_APIKEY_PRIVATE }}
+          MJ_APIKEY_PRIVATE: ${{ secrets.MJ_APIKEY_PRIVATE }},
+          JWT_SECRET: jwtsecret
+          AT_SECRET: atsecret
+          RT_SECRET: rtsecret
+          
