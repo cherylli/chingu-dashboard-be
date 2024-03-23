@@ -5,7 +5,7 @@ type VoyageTeam = {
     memberId: number;
 };
 
-export interface CustomRequest extends Request {
+export type CustomRequest = Request & {
     user: {
         userId: string;
         email: string;
