@@ -1,9 +1,11 @@
+import { Request } from "express";
+
 type VoyageTeam = {
     teamId: number;
     memberId: number;
 };
 
-export type CustomRequest = Request & {
+export interface CustomRequest extends Request {
     user: {
         userId: string;
         email: string;
