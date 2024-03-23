@@ -22,7 +22,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "18"
+          node-version: "21"
 
       - name: Install dependencies
         run: yarn install
@@ -44,3 +44,6 @@ jobs:
           if [ ${{ github.event.pull_request.base.ref }} == "main" ]; then
             yarn test:e2e --testTimeout=300000
           fi        
+        env:
+          MJ_APIKEY_PUBLIC: ${{ secrets.MJ_APIKEY_PUBLIC }},
+          MJ_APIKEY_PRIVATE: ${{ secrets.MJ_APIKEY_PRIVATE }}
