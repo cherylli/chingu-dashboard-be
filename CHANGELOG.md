@@ -10,6 +10,39 @@ Another example [here](https://co-pilot.dev/changelog)
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+
+## [v1.0.1-alpha]
+
+### Added
+- Add units tests for the teams controller & services([#189](https://github.com/chingu-x/chingu-dashboard-be/pull/189))
+- Add discord oauth and e2e test ([#194](https://github.com/chingu-x/chingu-dashboard-be/pull/194))
+- Add morgan middleware for request logging with custom logger ([#200](https://github.com/chingu-x/chingu-dashboard-be/pull/200))
+- Add CASL permissions for Team Sprint endpoint ([#193](https://github.com/chingu-x/chingu-dashboard-be/pull/193))
+- Add units tests for the teams resource controller & services([#201](https://github.com/chingu-x/chingu-dashboard-be/pull/201))
+
+### Changed
+- updated changelog ([#195](https://github.com/chingu-x/chingu-dashboard-be/pull/195))
+- Update accepted localhost port and docker compose file for a custom network setup ([#199](https://github.com/chingu-x/chingu-dashboard-be/pull/199))
+
+### Fixed
+- Fix seed data for alpha test (check in form question changes, gravatar) ([#190](https://github.com/chingu-x/chingu-dashboard-be/pull/190))
+- revised 2 checkin questions for alpha test ([#192](https://github.com/chingu-x/chingu-dashboard-be/pull/192))
+- Fix seed checkin form data for PO and SM , and voyage-role for team 6 ([#196](https://github.com/chingu-x/chingu-dashboard-be/pull/196))
+- Bug add check for team id in place memberId ([#197](https://github.com/chingu-x/chingu-dashboard-be/pull/197))
+- Update check-in form question ids validation (`checkQuestionsInFormById`) to accept an array of form titles ([#198](https://github.com/chingu-x/chingu-dashboard-be/pull/198))
+
+### Removed
+
+## [v1.0.0-alpha]
+
+### Added
+
 - Add @ApiResponse tags to resources ([#76](https://github.com/chingu-x/chingu-dashboard-be/pull/76))
 - Add @ApiResponse tags to ideations and features ([#65](https://github.com/chingu-x/chingu-dashboard-be/pull/77))
 - Add refresh token functionality and global guard to protect all routes ([#78](https://github.com/chingu-x/chingu-dashboard-be/pull/78))
@@ -38,12 +71,28 @@ Another example [here](https://co-pilot.dev/changelog)
 - Add voyage project submission status to `/me` endpoint ([#158](https://github.com/chingu-x/chingu-dashboard-be/pull/158))
 - Add e2e tests for teams controller ([#162](https://github.com/chingu-x/chingu-dashboard-be/pull/162))
 - Add swagger access info, add forms authorization and e2e tests ([#160](https://github.com/chingu-x/chingu-dashboard-be/pull/160))
+- Add voyages unit test, also had to update all files (seed, tests, services) to meet strict null rule due to prismaMock requirements ([#163](https://github.com/chingu-x/chingu-dashboard-be/pull/163))
+- Add e2e tests for users controller ([#165](https://github.com/chingu-x/chingu-dashboard-be/pull/165))
+- Add GET endpoint for check-in form responses ([#166](https://github.com/chingu-x/chingu-dashboard-be/pull/166))
+- Add weekly sprint checkin forms for product owner and scrum master ([#167](https://github.com/chingu-x/chingu-dashboard-be/pull/167))
+- Add e2e test for features controller ([#168](https://github.com/chingu-x/chingu-dashboard-be/pull/168))
+- Add endpoint to reseed the database ([#170](https://github.com/chingu-x/chingu-dashboard-be/pull/170))
+- Add new @unverified decorator to 4 routes, updated permission guard ([#171](https://github.com/chingu-x/chingu-dashboard-be/pull/171))
+- Add CASL permissions for Tech endpoint ([#174](https://github.com/chingu-x/chingu-dashboard-be/pull/174))
+- Add CASL permissions for Team Resource endpoint ([#177](https://github.com/chingu-x/chingu-dashboard-be/pull/177))
+- Add units tests for the users controller & services([#179](https://github.com/chingu-x/chingu-dashboard-be/pull/178))
+-  Add CASL permissions for Team features endpoint ([#184](https://github.com/chingu-x/chingu-dashboard-be/pull/184))
+- Add production seed for alpha test ([#185](https://github.com/chingu-x/chingu-dashboard-be/pull/185))
+- Add types and validation to env variables ([#187](https://github.com/chingu-x/chingu-dashboard-be/pull/187))
+
+
+
 
 
 ### Changed
 
 - Update docker compose and scripts in package.json to include a test database container and remove usage of .env.dev to avoid confusion ([#100](https://github.com/chingu-x/chingu-dashboard-be/pull/100))
-- Restructure seed/index.ts to work with e2e tests, and add --runInBand to e2e scripts[#101](https://github.com/chingu-x/chingu-dashboard-be/pull/101)
+- Restructure seed/-index.ts to work with e2e tests, and add --runInBand to e2e scripts[#101](https://github.com/chingu-x/chingu-dashboard-be/pull/101)
 - Update changelog ([#104](https://github.com/chingu-x/chingu-dashboard-be/pull/104))
 - Update test.yml to run e2e tests on pull requests to the main branch [#105](https://github.com/chingu-x/chingu-dashboard-be/pull/105)
 - Update email templates to use domain in environment variables [#110](https://github.com/chingu-x/chingu-dashboard-be/pull/110)
@@ -65,7 +114,11 @@ Another example [here](https://co-pilot.dev/changelog)
 - Update seed data to include voyage 49-51 [#152](https://github.com/chingu-x/chingu-dashboard-be/pull/152)
 - Updated Sprints routes with 401 response when not logged in [#157](https://github.com/chingu-x/chingu-dashboard-be/pull/157)
 - Updated DELETE ideation-vote service to also delete ideation when no votes remain [#161](https://github.com/chingu-x/chingu-dashboard-be/pull/161)
-
+- Refactored the prisma models to be grouped by domain type [#172](https://github.com/chingu-x/chingu-dashboard-be/pull/172)
+- Updated response for GET teams/:teamId/techs to include isSelected value for techs [#173](https://github.com/chingu-x/chingu-dashboard-be/pull/173)
+- Refactor ideation endpoints to remove redundant teamId params  [#175](https://github.com/chingu-x/chingu-dashboard-be/pull/175)
+- Squashed migration files into one [#176](https://github.com/chingu-x/chingu-dashboard-be/pull/176)
+- Update prisma schema to include oauth [#181](https://github.com/chingu-x/chingu-dashboard-be/pull/181)
 
 
 ### Fixed
@@ -76,6 +129,9 @@ Another example [here](https://co-pilot.dev/changelog)
 - Fix bug with reading roles after reseeding causes the db to not recognize the tokens stored by the user's browser ([#134](https://github.com/chingu-x/chingu-dashboard-be/pull/134))
 - Fix form responses giving error and not inserting values when the boolean value is false ([#156](https://github.com/chingu-x/chingu-dashboard-be/pull/156))
 - Fix a bug for check on voyageTeamMemberId ([#159](https://github.com/chingu-x/chingu-dashboard-be/pull/159))
+- Fix users unit test failing due to a schema change ([#182](https://github.com/chingu-x/chingu-dashboard-be/pull/182))
+
+
 
 ### Removed
 

@@ -1,19 +1,24 @@
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { Request } from "express";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 import { UsersService } from "../../users/users.service";
+import { AuthConfig } from "../../config/auth/auth.interface";
 
 @Injectable()
 export class AtStrategy extends PassportStrategy(Strategy, "jwt-at") {
-    constructor(private usersService: UsersService) {
+    constructor(
+        private usersService: UsersService,
+        @Inject("Auth-Config") private authConfig: AuthConfig,
+    ) {
+        const { AT_SECRET } = authConfig.secrets;
         super({
             jwtFromRequest: ExtractJwt.fromExtractors([
                 AtStrategy.extractJWT,
                 ExtractJwt.fromAuthHeaderAsBearerToken(),
             ]),
             ignoreExpiration: false,
-            secretOrKey: process.env.AT_SECRET,
+            secretOrKey: AT_SECRET,
         });
     }
 
@@ -25,6 +30,7 @@ export class AtStrategy extends PassportStrategy(Strategy, "jwt-at") {
         ) {
             return req.cookies.access_token;
         }
+        return null;
     }
 
     async validate(payload: any) {
@@ -35,6 +41,7 @@ export class AtStrategy extends PassportStrategy(Strategy, "jwt-at") {
             userId: payload.sub,
             email: payload.email,
             roles: userInDb.roles,
+            isVerified: userInDb.emailVerified,
             voyageTeams: userInDb.voyageTeamMembers?.map((t) => {
                 return {
                     teamId: t.voyageTeamId,

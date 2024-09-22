@@ -3,6 +3,7 @@ import {
     Body,
     Controller,
     Delete,
+    Get,
     HttpCode,
     HttpStatus,
     Post,
@@ -35,17 +36,25 @@ import { ResetPasswordDto } from "./dto/reset-password.dto";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { JwtRefreshAuthGuard } from "./guards/jwt-rt-auth.guard";
 import { Public } from "../global/decorators/public.decorator";
+import { Unverified } from "../global/decorators/unverified.decorator";
 import { AT_MAX_AGE, RT_MAX_AGE } from "../global/constants";
 import { RevokeRTDto } from "./dto/revoke-refresh-token.dto";
 import { CheckAbilities } from "../global/decorators/abilities.decorator";
 import { Action } from "../ability/ability.factory/ability.factory";
 import { CustomRequest } from "../global/types/CustomRequest";
 import { Response } from "express";
-
+import { DiscordAuthGuard } from "./guards/discord-auth.guard";
+import { MailConfigService } from "../config/mail/mailConfig.service";
+import { AppConfigService } from "../config/app/appConfig.service";
 @ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
-    constructor(private authService: AuthService) {}
+    constructor(
+        private authService: AuthService,
+        private mailConfigService: MailConfigService,
+
+        private appConfigService: AppConfigService,
+    ) {}
 
     @ApiOperation({
         summary: "Public Route: Signup, and send a verification email",
@@ -89,6 +98,7 @@ export class AuthController {
         type: UnauthorizedErrorResponse,
     })
     @HttpCode(HttpStatus.OK)
+    @Unverified()
     @Post("resend-email")
     async resendVerificationEmail(@Body() resendEmailDto: ResendEmailDto) {
         return this.authService.resendEmail(resendEmailDto);
@@ -113,6 +123,7 @@ export class AuthController {
         type: UnauthorizedErrorResponse,
     })
     @HttpCode(HttpStatus.OK)
+    @Unverified()
     @Post("verify-email")
     async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
         return this.authService.verifyEmail(verifyEmailDto);
@@ -150,20 +161,7 @@ export class AuthController {
         @Request() req: CustomRequest,
         @Res({ passthrough: true }) res: Response,
     ) {
-        const { access_token, refresh_token } = await this.authService.login(
-            req.user,
-            req.cookies?.refresh_token,
-        );
-        res.cookie("access_token", access_token, {
-            maxAge: AT_MAX_AGE * 1000,
-            httpOnly: true,
-            secure: true,
-        });
-        res.cookie("refresh_token", refresh_token, {
-            maxAge: RT_MAX_AGE * 1000,
-            httpOnly: true,
-            secure: true,
-        });
+        await this.authService.returnTokensOnLoginSuccess(req, res);
         res.status(HttpStatus.OK).send({ message: "Login Success" });
     }
 
@@ -273,6 +271,7 @@ export class AuthController {
         type: UnauthorizedErrorResponse,
     })
     @UseGuards(JwtAuthGuard)
+    @Unverified()
     @Post("logout")
     async logout(
         @Request() req: CustomRequest,
@@ -341,5 +340,29 @@ export class AuthController {
     @Post("reset-password/")
     async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
         return this.authService.resetPassword(resetPasswordDto);
+    }
+
+    @ApiOperation({
+        summary: "discord oauth",
+        description:
+            "This does not work on swagger. Open this link from a web browser, a discord popup should appear. `{BaseURL}/api/v1/auth/discord/login` ",
+    })
+    @UseGuards(DiscordAuthGuard)
+    @Public()
+    @Get("/discord/login")
+    handleDiscordLogin() {
+        return;
+    }
+
+    @UseGuards(DiscordAuthGuard)
+    @Public()
+    @Get("/discord/redirect")
+    async handleDiscordRedirect(
+        @Request() req: CustomRequest,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        await this.authService.returnTokensOnLoginSuccess(req, res);
+        const FRONTEND_URL = this.appConfigService.FrontendUrl;
+        res.redirect(`${FRONTEND_URL}`);
     }
 }

@@ -1,0 +1,89 @@
+// === Users, roles, and tokens ===
+
+model Gender {
+  id           Int    @id @default(autoincrement())
+  abbreviation String @unique
+  description  String
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt
+
+  users User[]
+}
+
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  password      String
+  firstName     String?
+  lastName      String?
+  avatar        String?
+  gender        Gender?  @relation(fields: [genderId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  genderId      Int?
+  countryCode   String?
+  timezone      String?
+  comment       String?
+  refreshToken  String[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt
+
+  voyageTeamMembers      VoyageTeamMember[]
+  userChecklistStatuses  UserChecklistStatus[]
+  soloProjects           SoloProject[]
+  soloProjectEvaluators  SoloProject[]           @relation(name: "evaluators")
+  voyageApplications     VoyageApplication[]
+  resetToken             ResetToken?
+  emailVerificationToken EmailVerificationToken?
+  roles                  UserRole[]
+  oAuthProfiles          UserOAuthProfile[]
+}
+
+model Role {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt
+
+  users UserRole[]
+}
+
+model UserRole {
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.Uuid
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  roleId Int
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt
+
+  @@unique(fields: [userId, roleId], name: "userRoleKey")
+}
+
+model OAuthProvider {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt
+
+  userOAuthProfiles UserOAuthProfile[]
+}
+
+model UserOAuthProfile {
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String        @db.Uuid
+  provider         OAuthProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  providerId       Int
+  providerUserId   String
+  providerUsername String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt
+
+  @@id(fields: [userId, providerId], name: "oauthProfileId")
+  @@unique(fields: [providerId, providerUserId], name: "providerUserKey")
+}

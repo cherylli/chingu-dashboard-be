@@ -55,6 +55,7 @@ export class UsersService {
                             voyageTeamId: true,
                         },
                     },
+                    emailVerified: true,
                 },
             }),
         );
@@ -78,21 +79,10 @@ export class UsersService {
         });
 
         if (!user) throw new NotFoundException("User not found");
-        // get voyageTeamMemberIds
-        const teamMemberId: number[] = (
-            await this.prisma.user.findUnique({
-                where: {
-                    id: userId,
-                },
-                select: {
-                    voyageTeamMembers: {
-                        select: {
-                            id: true,
-                        },
-                    },
-                },
-            })
-        ).voyageTeamMembers.map((teamMemberId) => teamMemberId.id);
+
+        const teamMemberId: number[] = user.voyageTeamMembers.map(
+            (teamMemberId) => teamMemberId.id,
+        );
 
         // get sprint checkin  Ids
         const sprintCheckInIds = (

@@ -28,7 +28,7 @@ export class VoyagesService {
         );
 
         await this.globalServices.checkQuestionsInFormByTitle(
-            FormTitles.voyageProjectSubmission,
+            [FormTitles.voyageProjectSubmission],
             responseArray,
         );
 
@@ -86,7 +86,7 @@ export class VoyagesService {
         }
     }
 
-    async getVoyageProject() {
+    async getVoyageProjects() {
         return this.prisma.formResponseVoyageProject.findMany({});
     }
 }

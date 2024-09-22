@@ -8,10 +8,7 @@ import {
     Delete,
     ParseIntPipe,
     Request,
-    HttpException,
     HttpStatus,
-    NotFoundException,
-    UnauthorizedException,
 } from "@nestjs/common";
 import { FeaturesService } from "./features.service";
 import { CreateFeatureDto } from "./dto/create-feature.dto";
@@ -22,10 +19,12 @@ import {
     ApiOperation,
     ApiResponse,
     ApiTags,
+    ApiParam,
 } from "@nestjs/swagger";
 import { Feature } from "./entities/feature.entity";
 import {
     BadRequestErrorResponse,
+    ForbiddenErrorResponse,
     NotFoundErrorResponse,
     UnauthorizedErrorResponse,
 } from "../global/responses/errors";
@@ -36,6 +35,8 @@ import {
     DeleteFeatureResponse,
 } from "./features.response";
 import { CustomRequest } from "../global/types/CustomRequest";
+import { CheckAbilities } from "../global/decorators/abilities.decorator";
+import { Action } from "../ability/ability.factory/ability.factory";
 
 @Controller()
 @ApiTags("Voyage - Features")
@@ -53,8 +54,13 @@ export class FeaturesController {
     })
     @ApiResponse({
         status: HttpStatus.UNAUTHORIZED,
-        description: "User is not authorized to perform this action.",
+        description: "unauthorized access - user is not logged in",
         type: UnauthorizedErrorResponse,
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: "forbidden - user does not have the required permission",
+        type: ForbiddenErrorResponse,
     })
     @ApiResponse({
         status: HttpStatus.BAD_REQUEST,
@@ -66,7 +72,14 @@ export class FeaturesController {
         description: "Successfully created a new feature.",
         type: FeatureResponse,
     })
-    // TODO: Add own_team permission here
+    @ApiParam({
+        name: "teamId",
+        description: "team Id",
+        type: "Integer",
+        required: true,
+        example: 1,
+    })
+    @CheckAbilities({ action: Action.Create, subject: "Feature" })
     @Post("/teams/:teamId/features")
     @ApiCreatedResponse({ type: Feature })
     async createFeature(
@@ -83,7 +96,7 @@ export class FeaturesController {
 
     @ApiOperation({
         summary:
-            "Gets all feature category options. e.g. Must have, should have, nice to have",
+            "[Permission: own_team] Gets all feature category options. e.g. Must have, should have, nice to have",
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -91,6 +104,12 @@ export class FeaturesController {
         isArray: true,
         type: FeatureCategoriesResponse,
     })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: "Unauthorized when user is not logged in",
+        type: UnauthorizedErrorResponse,
+    })
+    @CheckAbilities({ action: Action.Read, subject: "Feature" })
     @Get("/features/feature-categories")
     findFeatureCategory() {
         return this.featuresService.findFeatureCategories();
@@ -108,9 +127,13 @@ export class FeaturesController {
     })
     @ApiResponse({
         status: HttpStatus.UNAUTHORIZED,
-        description:
-            "Invalid uuid or teamID. User is not authorized to perform this action.",
+        description: "unauthorized access - user is not logged in",
         type: UnauthorizedErrorResponse,
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: "forbidden - user does not have the required permission",
+        type: ForbiddenErrorResponse,
     })
     @ApiResponse({
         status: HttpStatus.NOT_FOUND,
@@ -118,10 +141,20 @@ export class FeaturesController {
             "Could not find features for project. Team with given ID does not exist.",
         type: NotFoundErrorResponse,
     })
-    // TODO: Add own_team permission here
+    @ApiParam({
+        name: "teamId",
+        description: "team Id",
+        type: "Integer",
+        required: true,
+        example: 1,
+    })
+    @CheckAbilities({ action: Action.Read, subject: "Feature" })
     @Get("/teams/:teamId/features")
-    findAllFeatures(@Param("teamId", ParseIntPipe) teamId: number) {
-        return this.featuresService.findAllFeatures(teamId);
+    findAllFeatures(
+        @Request() req: CustomRequest,
+        @Param("teamId", ParseIntPipe) teamId: number,
+    ) {
+        return this.featuresService.findAllFeatures(teamId, req);
     }
 
     @ApiOperation({
@@ -134,18 +167,33 @@ export class FeaturesController {
     })
     @ApiResponse({
         status: HttpStatus.UNAUTHORIZED,
-        description:
-            "Invalid uuid or teamID. User is not authorized to perform this action.",
+        description: "unauthorized access - user is not logged in",
         type: UnauthorizedErrorResponse,
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: "forbidden - user does not have the required permission",
+        type: ForbiddenErrorResponse,
     })
     @ApiResponse({
         status: HttpStatus.NOT_FOUND,
         description: "Feature with given ID does not exist.",
         type: NotFoundErrorResponse,
     })
+    @ApiParam({
+        name: "featureId",
+        description: "feature Id",
+        type: "Integer",
+        required: true,
+        example: 1,
+    })
+    @CheckAbilities({ action: Action.Read, subject: "Feature" })
     @Get("/features/:featureId")
-    findOneFeature(@Param("featureId", ParseIntPipe) featureId: number) {
-        return this.featuresService.findOneFeature(featureId);
+    findOneFeature(
+        @Request() req: CustomRequest,
+        @Param("featureId", ParseIntPipe) featureId: number,
+    ) {
+        return this.featuresService.findOneFeature(featureId, req);
     }
 
     @ApiOperation({
@@ -159,8 +207,13 @@ export class FeaturesController {
     })
     @ApiResponse({
         status: HttpStatus.UNAUTHORIZED,
-        description: "user is unauthorized to perform this action",
+        description: "unauthorized access - user is not logged in",
         type: UnauthorizedErrorResponse,
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: "forbidden - user does not have the required permission",
+        type: ForbiddenErrorResponse,
     })
     @ApiResponse({
         status: HttpStatus.BAD_REQUEST,
@@ -172,33 +225,25 @@ export class FeaturesController {
         description: "Successfully updated feature.",
         type: FeatureResponse,
     })
-    //Can only update if loggedIn userId mataches addedBy userId
+    @ApiParam({
+        name: "featureId",
+        description: "login with dan@random.com",
+        type: "Integer",
+        required: true,
+        example: 1,
+    })
+    @CheckAbilities({ action: Action.Update, subject: "Feature" })
     @Patch("/features/:featureId")
     async updateFeature(
-        @Request() req,
+        @Request() req: CustomRequest,
         @Param("featureId", ParseIntPipe) featureId: number,
         @Body() updateFeatureDto: UpdateFeatureDto,
     ) {
-        const feature = await this.featuresService.findOneFeature(featureId);
-
-        if (!feature) {
-            throw new NotFoundException(
-                `featureId (id: ${featureId}) does not exist.`,
-            );
-        }
-
-        if (feature.addedBy.member.id === req.user.userId) {
-            const updatedFeature = await this.featuresService.updateFeature(
-                featureId,
-                updateFeatureDto,
-            );
-            return updatedFeature;
-        } else {
-            throw new HttpException(
-                "user is unauthorized to perform this action",
-                HttpStatus.UNAUTHORIZED,
-            );
-        }
+        return this.featuresService.updateFeature(
+            featureId,
+            updateFeatureDto,
+            req,
+        );
     }
 
     @ApiOperation({
@@ -227,9 +272,17 @@ export class FeaturesController {
         isArray: true,
         type: ExtendedFeaturesResponse,
     })
+    @ApiParam({
+        name: "featureId",
+        description: "login with dan@random.com",
+        type: "Integer",
+        required: true,
+        example: 1,
+    })
+    @CheckAbilities({ action: Action.Update, subject: "Feature" })
     @Patch("/features/:featureId/reorder")
     async updateFeatureOrderAndCategory(
-        @Request() req,
+        @Request() req: CustomRequest,
         @Param("featureId", ParseIntPipe) featureId: number,
         @Body() updateOrderAndCategoryDto: UpdateFeatureOrderAndCategoryDto,
     ) {
@@ -251,36 +304,32 @@ export class FeaturesController {
     })
     @ApiResponse({
         status: HttpStatus.UNAUTHORIZED,
-        description: "user is unauthorized to perform this action",
+        description: "unauthorized access - user is not logged in",
         type: UnauthorizedErrorResponse,
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: "forbidden - user does not have the required permission",
+        type: ForbiddenErrorResponse,
     })
     @ApiResponse({
         status: HttpStatus.OK,
         description: "Successfully deleted feature.",
         type: DeleteFeatureResponse,
     })
-    //Can only delete if loggedIn userId mataches addedBy userId
+    @ApiParam({
+        name: "featureId",
+        description: "login with dan@random.com",
+        type: "Integer",
+        required: true,
+        example: 2,
+    })
+    @CheckAbilities({ action: Action.Delete, subject: "Feature" })
     @Delete("/features/:featureId")
     async deleteFeature(
-        @Request() req,
+        @Request() req: CustomRequest,
         @Param("featureId", ParseIntPipe) featureId: number,
     ) {
-        const feature = await this.featuresService.findOneFeature(featureId);
-
-        if (!feature) {
-            throw new NotFoundException(
-                `featureId (id: ${featureId}) does not exist.`,
-            );
-        }
-
-        if (feature.addedBy.member.id === req.user.userId) {
-            const deletedFeature =
-                await this.featuresService.deleteFeature(featureId);
-            return deletedFeature;
-        } else {
-            throw new UnauthorizedException(
-                `uuid ${req.user.userId} does not match addedBy teamMemberID ${feature.addedBy.member.id}`,
-            );
-        }
+        return this.featuresService.deleteFeature(featureId, req);
     }
 }

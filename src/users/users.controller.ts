@@ -16,9 +16,11 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { FullUserResponse, PrivateUserResponse } from "./users.response";
 import {
     BadRequestErrorResponse,
+    ForbiddenErrorResponse,
     NotFoundErrorResponse,
     UnauthorizedErrorResponse,
 } from "../global/responses/errors";
+import { Unverified } from "../global/decorators/unverified.decorator";
 import { isUUID } from "class-validator";
 import { UserLookupByEmailDto } from "./dto/lookup-user-by-email.dto";
 import { CheckAbilities } from "../global/decorators/abilities.decorator";
@@ -39,6 +41,16 @@ export class UsersController {
         description: "Successfully gets all users in the database",
         isArray: true,
         type: FullUserResponse,
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: "unauthorized access - user is not logged in",
+        type: UnauthorizedErrorResponse,
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: "forbidden - user does not have the required permission",
+        type: ForbiddenErrorResponse,
     })
     @CheckAbilities({ action: Action.Manage, subject: "all" })
     @Get()
@@ -65,6 +77,7 @@ export class UsersController {
         description: "User not found",
         type: NotFoundErrorResponse,
     })
+    @Unverified()
     @Get("me")
     getProfile(@Request() req: CustomRequest) {
         return this.usersService.getPrivateUserProfile(req.user.userId);
@@ -90,6 +103,16 @@ export class UsersController {
         status: HttpStatus.BAD_REQUEST,
         description: "UserId is not a valid UUID",
         type: BadRequestErrorResponse,
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: "unauthorized access - user is not logged in",
+        type: UnauthorizedErrorResponse,
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: "forbidden - user does not have the required permission",
+        type: ForbiddenErrorResponse,
     })
     @ApiParam({
         name: "userId",
@@ -124,6 +147,16 @@ export class UsersController {
         status: HttpStatus.BAD_REQUEST,
         description: "Given email is not in a valid email syntax.",
         type: BadRequestErrorResponse,
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: "unauthorized access - user is not logged in",
+        type: UnauthorizedErrorResponse,
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: "forbidden - user does not have the required permission",
+        type: ForbiddenErrorResponse,
     })
     @CheckAbilities({ action: Action.Manage, subject: "all" })
     @HttpCode(200)
