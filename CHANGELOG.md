@@ -13,6 +13,21 @@
 > MINOR version when you add functionality in a backward compatible manner <br/>
 > PATCH version when you make backward compatible bug fixes <br/>
 
+## [1.2.0](https://github.com/cherylli/chingu-dashboard-be/compare/v1.1.0...v1.2.0) (2024-12-25)
+
+
+### Features
+
+* **tests:** extend Jest with additional matchers for better testing ([ea49075](https://github.com/cherylli/chingu-dashboard-be/commit/ea49075481a5f8a48115005908d74407be028ab8))
+
+
+### Bug Fixes
+
+* **eslint.config.mjs:** correct import and plugin names, adjust tsconfig.json path ([feadabd](https://github.com/cherylli/chingu-dashboard-be/commit/feadabd38759c3fd09f20ae2732401bdad812f3f))
+* **package.json:** downgrade several packages to ensure compatibility ([cf9e090](https://github.com/cherylli/chingu-dashboard-be/commit/cf9e0900874274aad6a3f7a60e3e1ccef41e81e2))
+* **tests:** correct usage of jest-extended matchers in various test files ([2361bb0](https://github.com/cherylli/chingu-dashboard-be/commit/2361bb07973f0cd6bb4da3ec3e040ef3917560b5))
+* **tests:** corrected 'toBeArray' and 'toBeObject' to be called as functions instead as a property access. ([249c8dc](https://github.com/cherylli/chingu-dashboard-be/commit/249c8dc51ddd9e4aeb51b98178b551fd58e3835a))
+
 ## [Unreleased]
 - Updated readme for installation part ([#225])(https://github.com/chingu-x/chingu-dashboard-be/pull/225)
 - Updated nestjs packages to latest version ([#233])(https://github.com/chingu-x/chingu-dashboard-be/pull/233)
